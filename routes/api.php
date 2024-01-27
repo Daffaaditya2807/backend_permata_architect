@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\ProyekController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\UserController;
@@ -15,10 +16,11 @@ use App\Http\Controllers\API\UserController;
 |
 */
 
+Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
-Route::get('/greeting', function () {
-    return 'Hello World';
-});
+Route::get('/proyek', [ProyekController::class, 'all']);
+Route::get('/pengeluaran_proyek', [ProyekController::class, 'totalPengeluaranProyek']);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

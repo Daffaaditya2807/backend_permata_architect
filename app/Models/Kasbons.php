@@ -5,10 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Keuangans extends Model
+class Kasbons extends Model
 {
     use HasFactory;
-    protected $primaryKey = 'id_keuangan';
+    protected $primaryKey = 'id_kasbon';
+
 
     /**
      * The attributes that are mass assignable.
@@ -16,13 +17,7 @@ class Keuangans extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'pengeluaran',
-        'pemasukan',
-        'id',
+        'id_pekerja',
+        'jumlah_kasbon'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'id', 'id');
-    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pengeluarans extends Model
 {
     use HasFactory;
+    protected $primaryKey = 'id_pengeluaran';
 
     /**
      * The attributes that are mass assignable.
