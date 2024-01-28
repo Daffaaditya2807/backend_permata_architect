@@ -38,10 +38,23 @@ class UserController extends Controller
                 'user' => $user
             ], 'Authenticated');
         } catch (Exception $error) {
-            return ResponseFormatter::error([
-                'message' => 'ada yang eror',
-                'error' => $error,
-            ], 'Authentication Failed', 500);
+
+            if ($error->getMessage() == 'The email has already been taken.') {
+                return ResponseFormatter::error([
+                    'message' => 'ada yang eror',
+                    'error' => $error->getMessage(),
+                ], 'Email telah digunakan', 444);
+            } else if ($error->getMessage() == 'The email field must be a valid email address.') {
+                return ResponseFormatter::error([
+                    'message' => 'ada yang eror',
+                    'error' => $error->getMessage(),
+                ], 'format email tidak sesuai', 401);
+            } else {
+                return ResponseFormatter::error([
+                    'message' => 'ada yang eror',
+                    'error' => $error->getMessage(),
+                ], 'Terjadi Kesalahan sistem', 500);
+            }
         }
     }
 
@@ -52,11 +65,19 @@ class UserController extends Controller
 
             $credentials = request(['email', 'password']);
 
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user) {
+                return ResponseFormatter::error(['message' => 'Unauthorized'], 'Email not found', 404);
+            }
+
+            if (!Hash::check($request->password, $user->password)) {
+                return ResponseFormatter::error(['message' => 'Unauthorized'], 'Invalid password', 401);
+            }
+
             if (!Auth::attempt($credentials)) {
                 return ResponseFormatter::error(['message' => 'Unauthorized'], 'Authentacition Failed', 500);
             }
-
-            $user = User::where('email', $request->email)->first();
 
             if (!Hash::check($request->password, $user->password, [])) {
                 throw new \Exception('Invalid Credentials');
@@ -68,7 +89,7 @@ class UserController extends Controller
                 'user' => $user
             ], 'Authenticated');
         } catch (Exception $error) {
-            return ResponseFormatter::error(['message' => 'Something went wrong', 'error' => $error], 'Authentacition Failed', 500);
+            return ResponseFormatter::error(['message' => 'Something went wrong', 'error' => $error->getMessage()], 'Authentacition Failed', 500);
         }
     }
 
