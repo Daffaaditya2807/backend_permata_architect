@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers\API;
 
+use Exception;
+use Carbon\Carbon;
 use App\Models\Proyeks;
+use App\Models\Progress;
 use App\Models\Pengeluarans;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Storage;
 
 class ProyekController extends Controller
 {
@@ -54,5 +59,54 @@ class ProyekController extends Controller
         } else {
             return ResponseFormatter::error(null, 'Gagal', 404);
         }
+    }
+
+    public function addprogress(Request $request)
+    {
+        try {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'detail_lokasi' => ['required', 'string', 'max:500'],
+                'progress' => ['required', 'string', 'max:255'],
+                'keterangan_progress' => ['required', 'string'],
+                'image' => ['required', 'image', 'max:2048'],
+                'id_proyek' => ['required', 'int', 'max:255'],
+            ]);
+
+            // Menangani upload gambar
+            if ($request->hasFile('image')) {
+                $file = $request->file('image');
+                $timestamp = Carbon::now()->format('YmdHis'); // Menggunakan Carbon untuk timestamp
+                $filename = 'Progress' . $timestamp . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('public/images', $filename);
+                $picUrl = Storage::url($path);
+            } else {
+                $picUrl = null; // Atau handle jika tidak ada gambar yang diupload
+            }
+
+            $progress =  Progress::create([
+                'name' => $request->name,
+                'detail_lokasi' => $request->detail_lokasi,
+                'progress' => $request->progress,
+                'tanggal' => Carbon::now(),
+                'keterangan_progress' => $request->keterangan_progress,
+                'picUrl' => $picUrl,
+                'id_proyek' => $request->id_proyek
+            ]);
+            return ResponseFormatter::success($progress, 'Berhasil ditambahkan');
+        } catch (Exception $error) {
+            return ResponseFormatter::success($error->getMessage(), 'Gagal ditambahkan');
+        }
+    }
+
+    public function getProgress(Request $request)
+    {
+        $id_progress = $request->input('id_proyek');
+        $limit = $request->input('limit', 6);
+        $progress =  Progress::query();
+        if ($id_progress) {
+            $progress->where('id_proyek', '=', '' . $id_progress . '');
+        }
+        return ResponseFormatter::success($progress->paginate($limit), 'Data Progress berhasil diambil');
     }
 }

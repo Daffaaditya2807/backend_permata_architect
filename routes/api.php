@@ -20,6 +20,9 @@ Route::post('/login', [UserController::class, 'login']);
 Route::post('/register', [UserController::class, 'register']);
 Route::get('/proyek', [ProyekController::class, 'all']);
 Route::get('/pengeluaran_proyek', [ProyekController::class, 'totalPengeluaranProyek']);
+Route::post('/add_progress', [ProyekController::class, 'addprogress']);
+Route::get('/get_progress', [ProyekController::class, 'getProgress']);
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

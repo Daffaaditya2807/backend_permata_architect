@@ -42,4 +42,9 @@ class Proyeks extends Model
     {
         return $this->hasMany(Absensis::class, 'id_proyek', 'id_proyek');
     }
+
+    public function progress()
+    {
+        return $this->hasMany(Absensis::class, 'id_proyek', 'id_proyek');
+    }
 }
