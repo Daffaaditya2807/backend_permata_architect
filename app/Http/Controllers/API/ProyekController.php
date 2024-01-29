@@ -77,8 +77,8 @@ class ProyekController extends Controller
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
                 $timestamp = Carbon::now()->format('YmdHis'); // Menggunakan Carbon untuk timestamp
-                $filename = 'Progress' . $timestamp . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('public/images', $filename);
+                $filename = 'Progress_' . $timestamp . '.' . $file->getClientOriginalExtension();
+                $path = $file->storeAs('public/images/progress_image', $filename);
                 $picUrl = Storage::url($path);
             } else {
                 $picUrl = null; // Atau handle jika tidak ada gambar yang diupload

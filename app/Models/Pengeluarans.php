@@ -23,6 +23,7 @@ class Pengeluarans extends Model
         'id',
         'id_proyek',
         'satuan',
+        'quantity',
         'harga_satuan',
         'total_pengeluaran',
         'vendor'

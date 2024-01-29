@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\KeuanganController;
 use App\Http\Controllers\API\ProyekController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,9 @@ Route::get('/proyek', [ProyekController::class, 'all']);
 Route::get('/pengeluaran_proyek', [ProyekController::class, 'totalPengeluaranProyek']);
 Route::post('/add_progress', [ProyekController::class, 'addprogress']);
 Route::get('/get_progress', [ProyekController::class, 'getProgress']);
+Route::post('/add_pengeluaran', [KeuanganController::class, 'addPengeluaran']);
+Route::post('/add_pemasukan', [KeuanganController::class, 'addPemasukan']);
+
 
 
 
