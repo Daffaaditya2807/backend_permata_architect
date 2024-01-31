@@ -23,7 +23,6 @@ class ProyekController extends Controller
     {
         $id_proyek = $request->input('id_proyek');
         $lokasi_proyek = $request->input('lokasi_proyek');
-        $limit = $request->input('limit', 6);
 
         if ($id_proyek) {
             $proyeks = Proyeks::with(['pengeluarans', 'pekerjas'])->find($id_proyek);
@@ -40,7 +39,7 @@ class ProyekController extends Controller
             $proyeks->where('lokasi_proyek', 'like', '%' . $lokasi_proyek . '%');
         }
 
-        return ResponseFormatter::success($proyeks->paginate($limit), 'Data Produk berhasil diambil');
+        return ResponseFormatter::success($proyeks->get(), 'Data Produk berhasil diambil');
     }
 
     public function totalPengeluaranProyek()
@@ -109,12 +108,11 @@ class ProyekController extends Controller
     {
         try {
             $id_progress = $request->input('id_proyek');
-            $limit = $request->input('limit', 6);
             $progress =  Progress::query();
             if ($id_progress) {
                 $progress->where('id_proyek', '=', '' . $id_progress . '');
             }
-            return ResponseFormatter::success($progress->paginate($limit), 'Data Progress berhasil diambil');
+            return ResponseFormatter::success($progress->get(), 'Data Progress berhasil diambil');
         } catch (Exception $error) {
             return ResponseFormatter::error($error->getMessage(), 'Data Progress gagal diambil');
         }
