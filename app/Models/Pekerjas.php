@@ -21,4 +21,14 @@ class Pekerjas extends Model
         'upah',
         'id_proyek'
     ];
+
+    public function absensis()
+    {
+        return $this->hasMany(Absensis::class, 'id_pekerja', 'id_pekerja');
+    }
+
+    public function kasbons()
+    {
+        return $this->hasMany(Kasbons::class, 'id_pekerja', 'id_pekerja');
+    }
 }

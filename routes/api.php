@@ -25,6 +25,13 @@ Route::post('/add_progress', [ProyekController::class, 'addprogress']);
 Route::get('/get_progress', [ProyekController::class, 'getProgress']);
 Route::post('/add_pengeluaran', [KeuanganController::class, 'addPengeluaran']);
 Route::post('/add_pemasukan', [KeuanganController::class, 'addPemasukan']);
+Route::post('/get_biaya', [KeuanganController::class, 'getBiayaProyeks']);
+Route::get('/get_absensi', [ProyekController::class, 'getAbsensi']);
+Route::post('/add_absensi', [ProyekController::class, 'addAbsensi']);
+Route::get('/get_kasbons', [KeuanganController::class, 'getkasbons']);
+Route::post('/update_kasbons', [KeuanganController::class, 'updateKasbons']);
+
+
 
 
 

@@ -18,6 +18,12 @@ class Kasbons extends Model
      */
     protected $fillable = [
         'id_pekerja',
-        'jumlah_kasbon'
+        'jumlah_kasbon',
+        'id_proyek'
     ];
+
+    public function pekerja()
+    {
+        return $this->belongsTo(Pekerjas::class, 'id_pekerja', 'id_pekerja');
+    }
 }

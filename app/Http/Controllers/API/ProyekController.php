@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use App\Helpers\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Absensis;
+use App\Models\Pekerjas;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 
@@ -45,10 +47,11 @@ class ProyekController extends Controller
     {
         //Jika hanya Menampilkan projects yan
         $projects = Proyeks::all()->map(function ($project) {
+
             $totalPengeluaran = $project->getTotalPengeluaranAttribute();
             if ($totalPengeluaran > 0) {
                 $project->total_pengeluaran = $totalPengeluaran;
-                unset($project->pengeluarans); // Remove the pengeluarans relationship
+                unset($project->pengeluarans);
                 return $project;
             }
         })->filter();
@@ -64,6 +67,8 @@ class ProyekController extends Controller
     public function addprogress(Request $request)
     {
         try {
+
+            //
             $request->validate([
                 'name' => ['required', 'string', 'max:255'],
                 'detail_lokasi' => ['required', 'string', 'max:500'],
@@ -76,12 +81,12 @@ class ProyekController extends Controller
             // Menangani upload gambar
             if ($request->hasFile('image')) {
                 $file = $request->file('image');
-                $timestamp = Carbon::now()->format('YmdHis'); // Menggunakan Carbon untuk timestamp
+                $timestamp = Carbon::now()->format('YmdHis');
                 $filename = 'Progress_' . $timestamp . '.' . $file->getClientOriginalExtension();
                 $path = $file->storeAs('public/images/progress_image', $filename);
                 $picUrl = Storage::url($path);
             } else {
-                $picUrl = null; // Atau handle jika tidak ada gambar yang diupload
+                $picUrl = null;
             }
 
             $progress =  Progress::create([
@@ -93,20 +98,78 @@ class ProyekController extends Controller
                 'picUrl' => $picUrl,
                 'id_proyek' => $request->id_proyek
             ]);
+
             return ResponseFormatter::success($progress, 'Berhasil ditambahkan');
         } catch (Exception $error) {
-            return ResponseFormatter::success($error->getMessage(), 'Gagal ditambahkan');
+            return ResponseFormatter::error($error->getMessage(), 'Gagal ditambahkan');
         }
     }
 
     public function getProgress(Request $request)
     {
-        $id_progress = $request->input('id_proyek');
-        $limit = $request->input('limit', 6);
-        $progress =  Progress::query();
-        if ($id_progress) {
-            $progress->where('id_proyek', '=', '' . $id_progress . '');
+        try {
+            $id_progress = $request->input('id_proyek');
+            $limit = $request->input('limit', 6);
+            $progress =  Progress::query();
+            if ($id_progress) {
+                $progress->where('id_proyek', '=', '' . $id_progress . '');
+            }
+            return ResponseFormatter::success($progress->paginate($limit), 'Data Progress berhasil diambil');
+        } catch (Exception $error) {
+            return ResponseFormatter::error($error->getMessage(), 'Data Progress gagal diambil');
         }
-        return ResponseFormatter::success($progress->paginate($limit), 'Data Progress berhasil diambil');
+    }
+
+    public function addAbsensi(Request $request)
+    {
+        try {
+
+            $request->validate([
+                'id_pekerja' => ['integer', 'required'],
+                'status_absensi' => ['in:Setengah Hari,Masuk,Tidak Masuk', 'required'],
+                'id_proyek' => ['integer', 'required'],
+            ]);
+
+            // Cek apakah sudah ada absensi untuk pekerja dengan id_pekerja pada tanggal hari ini
+            $existingAbsensi = Absensis::where('id_pekerja', $request->id_pekerja)
+                ->whereDate('tanggal', Carbon::now()->toDateString())
+                ->first();
+
+            if ($existingAbsensi) {
+                // query Update 
+                $existingAbsensi->update([
+                    'status_absensi' => $request->status_absensi,
+                ]);
+
+                return ResponseFormatter::success($existingAbsensi, 'Berhasil diupdate');
+            }
+
+            $absensi = Absensis::create([
+                'id_pekerja' => $request->id_pekerja,
+                'status_absensi' => $request->status_absensi,
+                'id_proyek' => $request->id_proyek,
+                'tanggal' => Carbon::now()
+            ]);
+
+            return ResponseFormatter::success($absensi, 'Berhasil ditambahkan');
+        } catch (Exception $error) {
+
+            return ResponseFormatter::error($error->getMessage(), 'Gagal ditambahkan');
+            // return ResponseFormatter::error('Pekerja sudah absen hari ini', 'Sudah Absen');
+        }
+    }
+
+    public function getAbsensi(Request $request)
+    {
+        try {
+            $pekerjaList = Pekerjas::with(['absensis' => function ($query) {
+                $query->where('tanggal', '=', Carbon::now()->format('y-m-d'));
+            }])->where('id_proyek', '=', $request->id_proyek)->get();
+
+            return ResponseFormatter::success($pekerjaList, 'Data Absen berhasil diambil');
+        } catch (Exception $error) {
+
+            return ResponseFormatter::error($error->getMessage(), 'Data Absen gagal diambil');
+        }
     }
 }
