@@ -77,6 +77,7 @@ class KeuanganController extends Controller
                 'keterangan' => ['required', 'string', 'max:1000'],
                 'sumber_dana' => ['required', 'string', 'max:255'],
                 'id' => ['required'],
+                'id_proyek' => ['required'],
                 'image' => ['required', 'image', 'max:2048']
             ]);
 
@@ -95,6 +96,7 @@ class KeuanganController extends Controller
                 'keterangan' => $request->keterangan,
                 'sumber_dana' => $request->sumber_dana,
                 'id' => $request->id,
+                'id_proyek' => $request->id_proyek,
                 'foto' => $picUrl
             ]);
 

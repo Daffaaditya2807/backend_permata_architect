@@ -20,7 +20,8 @@ class Pemasukans extends Model
         'keterangan',
         'sumber_dana',
         'foto',
-        'id'
+        'id',
+        'id_proyek'
     ];
 
     public function user()
