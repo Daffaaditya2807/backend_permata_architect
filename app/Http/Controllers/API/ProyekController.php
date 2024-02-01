@@ -21,8 +21,8 @@ class ProyekController extends Controller
     //
     public function all(Request $request)
     {
+        $query = $request->input('q');
         $id_proyek = $request->input('id_proyek');
-        $lokasi_proyek = $request->input('lokasi_proyek');
 
         if ($id_proyek) {
             $proyeks = Proyeks::with(['pengeluarans', 'pekerjas'])->find($id_proyek);
@@ -33,10 +33,13 @@ class ProyekController extends Controller
             }
         }
 
-        $proyeks =  Proyeks::with(['pengeluarans', 'pekerjas']);
+        $proyeks = Proyeks::with(['pengeluarans', 'pekerjas']);
 
-        if ($lokasi_proyek) {
-            $proyeks->where('lokasi_proyek', 'like', '%' . $lokasi_proyek . '%');
+        if ($query) {
+            $proyeks = $proyeks->where(function ($q) use ($query) {
+                $q->where('lokasi_proyek', 'like', '%' . $query . '%')
+                    ->orWhere('keterangan', 'like', '%' . $query . '%');
+            });
         }
 
         return ResponseFormatter::success($proyeks->get(), 'Data Produk berhasil diambil');
