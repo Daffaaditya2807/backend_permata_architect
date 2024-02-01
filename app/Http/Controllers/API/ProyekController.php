@@ -58,9 +58,9 @@ class ProyekController extends Controller
             }
         })->filter();
 
-
-        if ($projects) {
-            return ResponseFormatter::success($projects, 'Berhasil Ditambah');
+        $sortedProjects = $projects->sortByDesc('total_pengeluaran')->values()->all();
+        if ($sortedProjects) {
+            return ResponseFormatter::success($sortedProjects, 'Berhasil Ditambah');
         } else {
             return ResponseFormatter::error(null, 'Gagal', 404);
         }
@@ -115,6 +115,7 @@ class ProyekController extends Controller
             if ($id_progress) {
                 $progress->where('id_proyek', '=', '' . $id_progress . '');
             }
+            $progress->orderBy('tanggal', 'desc');
             return ResponseFormatter::success($progress->get(), 'Data Progress berhasil diambil');
         } catch (Exception $error) {
             return ResponseFormatter::error($error->getMessage(), 'Data Progress gagal diambil');

@@ -30,7 +30,7 @@ class Proyeks extends Model
     }
     public function getTotalPengeluaranAttribute()
     {
-        return $this->pengeluarans()->sum('harga_satuan');
+        return $this->pengeluarans()->sum('total_pengeluaran');
     }
 
     public function pekerjas()
