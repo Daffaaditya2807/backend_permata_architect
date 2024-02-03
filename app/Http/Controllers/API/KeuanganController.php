@@ -64,7 +64,7 @@ class KeuanganController extends Controller
 
             return ResponseFormatter::success($pengeluaran, 'Berhasil menamnbahkan pengeluaran');
         } catch (Exception $error) {
-            return ResponseFormatter::success($error->getMessage(), 'Gagal ditambahkan');
+            return ResponseFormatter::error($error->getMessage(), 'Gagal ditambahkan');
         }
     }
 
@@ -102,7 +102,7 @@ class KeuanganController extends Controller
 
             return ResponseFormatter::success($pemasukan, 'Berhasil menamnbahkan pemasukan');
         } catch (Exception $error) {
-            return ResponseFormatter::success($error->getMessage(), 'Gagal ditambahkan');
+            return ResponseFormatter::error($error->getMessage(), 'Gagal ditambahkan');
         }
     }
 
@@ -139,11 +139,22 @@ class KeuanganController extends Controller
     {
         try {
             $request->validate(['id_pekerja' => 'required', 'string', 'id_proyek' => 'required', 'string']);
-            $updateKasbons = Kasbons::where('id_pekerja', '=', $request->id_pekerja)->where('id_proyek', '=', $request->id_proyek)->first();
+
+            $updateKasbons = Kasbons::where('id_pekerja', '=', $request->id_pekerja)
+                ->where('id_proyek', '=', $request->id_proyek)
+                ->first();
 
             if ($updateKasbons) {
-                $updateKasbons->update(['jumlah_kasbon' => $request->jumlah_kasbon]);
+                // Subtract the incoming value from the current jumlah_kasbon
+                $newJumlahKasbon = $updateKasbons->jumlah_kasbon - $request->jumlah_kasbon;
+
+                // Make sure the new value is not negative
+                $newJumlahKasbon = max(0, $newJumlahKasbon);
+
+                // Update jumlah_kasbon with the new value
+                $updateKasbons->update(['jumlah_kasbon' => $newJumlahKasbon]);
             }
+
             return ResponseFormatter::success($updateKasbons, 'Jumlah Kasbon telah diupdate');
         } catch (Exception $error) {
             return ResponseFormatter::error($error->getMessage(), 'Jumlah Kasbon gagal diupdate');
